@@ -1,11 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Static PDF Hosting</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: system-ui, sans-serif;
+      background: #f7f7f5;
+      color: #1a1a1a;
+      padding: 1.5rem;
+    }
+    main { max-width: 36rem; line-height: 1.5; }
+    code { background: #ecece8; padding: 0.1em 0.35em; border-radius: 4px; }
+    a { color: #0b57d0; }
+  </style>
 </head>
 <body>
-    Hello
+  <main>
+    <h1>Static PDF Hosting</h1>
+    <p>
+      PDFs are reached through stable event URLs of the form
+      <code>/event/&lt;event-name&gt;/&lt;document-name&gt;</code>.
+    </p>
+    <p>
+      Add a folder under <code>events/</code>, drop in a PDF, push to GitHub, and the URL becomes available.
+      See the repository README for setup and QR generation.
+    </p>
+  </main>
 </body>
 </html>
