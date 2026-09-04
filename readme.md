@@ -1,10 +1,10 @@
 # Static PDF Hosting (GitHub Pages)
 
-Host PDFs behind stable URLs and static QR codes. Scan a QR → the PDF downloads (or opens). No login, no landing page, no backend.
+Host PDFs behind stable URLs and static QR codes. Scan a QR → the PDF opens in the browser. No login, no landing page, no backend.
 
 **Production domain:** https://static-hosting.biradarakshay.com
 
-Tooling (QR generation, sample PDFs, download router) is written in **TypeScript**. The published site remains static HTML/CSS/JS only.
+Tooling (QR generation, sample PDFs, PDF router) is written in **TypeScript**. The published site remains static HTML/CSS/JS only.
 
 ## How it works
 
@@ -13,7 +13,7 @@ PDF in events/
   → stable URL /event/<event>/<doc>
   → static QR code
   → user scans
-  → PDF downloads / opens
+  → PDF opens in the browser viewer
 ```
 
 Adding a PDF is enough to make the URL work. No app code changes.
@@ -42,9 +42,9 @@ qr/
     ├── 2.svg
     └── 2.png
 
-src/download.ts       # TypeScript source for the download router
+src/download.ts       # TypeScript source for the PDF router
 assets/download.js    # compiled browser script (commit after npm run build)
-404.html              # routes /event/<event>/<doc> → PDF download
+404.html              # routes /event/<event>/<doc> → open PDF in browser
 index.html            # site root (not used by QR codes)
 CNAME                 # custom domain
 .nojekyll             # serve files as plain static assets
@@ -99,7 +99,7 @@ Then regenerate QR codes if you need a printable code for document `7`.
 - `<event-name>` is the folder name (not hardcoded in code)
 - `<document-name>` is the PDF filename without `.pdf`
 
-The router is `404.html` + `assets/download.js` (from `src/download.ts`). GitHub Pages serves `404.html` for any path that is not a real file, including `/event/...`. The script maps that path to the PDF under `/events/...` and triggers download / open.
+The router is `404.html` + `assets/download.js` (from `src/download.ts`). GitHub Pages serves `404.html` for any path that is not a real file, including `/event/...`. The script maps that path to the PDF under `/events/...` and navigates to it so the browser’s built-in PDF viewer displays the file.
 
 ## Generate QR codes
 
@@ -172,8 +172,8 @@ Confirm the site loads on `https://<user>.github.io/<repo>/` before attaching th
 ## Test QR codes (Android / iOS)
 
 1. Prefer testing against the **custom domain** HTTPS URL (same as printed codes)
-2. Android: Camera / Google Lens → should open the URL → PDF download or viewer
-3. iOS: Camera → notification banner → Safari opens the URL → PDF opens in viewer (iOS often blocks silent file downloads)
+2. Android: Camera / Google Lens → should open the URL → PDF viewer
+3. iOS: Camera → notification banner → Safari opens the URL → PDF opens in viewer
 4. Confirm the opened file matches the intended PDF
 5. Replace a PDF, hard-refresh or wait for Pages CDN, scan again — same QR, new content
 
@@ -187,12 +187,12 @@ python3 -m http.server 8080
 
 For local QR tests, regenerate with `--base-url http://127.0.0.1:8080`.
 
-## Browser limits on automatic PDF downloads
+## Browser PDF viewing
 
-- Desktop Chrome/Firefox: scripted download via blob usually works; a fallback link is shown if not
-- iOS Safari: programmatic downloads are restricted; the page navigates to the PDF instead (opens in the built-in viewer)
-- Some in-app browsers (Instagram, WeChat, etc.) may alter download behavior — the on-page link is the fallback
-- GitHub Pages cannot set `Content-Disposition: attachment`, so “force download vs open” is browser-controlled
+- Desktop Chrome/Firefox/Safari/Edge: navigating to the `.pdf` URL usually opens the built-in PDF viewer
+- iOS Safari and Android Chrome: same — the PDF opens in the browser viewer
+- Some in-app browsers may open an external viewer or offer a share sheet; a fallback link is shown if the file is missing
+- Users can still save/share the PDF from the browser viewer if they want a local copy
 
 The page intentionally has no document picker and almost no UI.
 
@@ -219,7 +219,7 @@ The page intentionally has no document picker and almost no UI.
 
 - Published site is static only: HTML / CSS / compiled JS
 - No React, Next.js, Node backend, database, API, Docker, auth, or paid hosting
-- TypeScript is used for local tooling and the download router source
+- TypeScript is used for local tooling and the PDF router source
 - No third-party QR services
 - Multiple events; new events = new folders
 - Reliability and long-term maintainability over features

@@ -1,11 +1,4 @@
-/** Browser download router for /event/<event>/<doc> → events/<event>/<doc>.pdf */
-
-function isIos(): boolean {
-  return (
-    /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)
-  );
-}
+/** Browser router: /event/<event>/<doc> → open events/<event>/<doc>.pdf in-browser. */
 
 function parseEventPath(pathname: string): { eventName: string; docName: string } | null {
   const match = pathname.match(/^\/event\/([^/]+)\/([^/]+)\/?$/);
@@ -43,28 +36,6 @@ function showFallback(statusEl: HTMLElement, fallbackEl: HTMLElement, message: s
   fallbackEl.classList.remove("hidden");
 }
 
-function openPdf(pdfUrl: string): void {
-  window.location.replace(pdfUrl);
-}
-
-function forceDownload(
-  blob: Blob,
-  fileName: string,
-  statusEl: HTMLElement,
-  fallbackEl: HTMLElement,
-): void {
-  const objectUrl = URL.createObjectURL(blob);
-  const anchor = document.createElement("a");
-  anchor.href = objectUrl;
-  anchor.download = fileName;
-  anchor.rel = "noopener";
-  document.body.appendChild(anchor);
-  anchor.click();
-  anchor.remove();
-  showFallback(statusEl, fallbackEl, "Download started. If nothing happened:");
-  window.setTimeout(() => URL.revokeObjectURL(objectUrl), 15_000);
-}
-
 async function main(): Promise<void> {
   const statusEl = requireEl<HTMLElement>("status");
   const fallbackEl = requireEl<HTMLElement>("fallback");
@@ -81,29 +52,17 @@ async function main(): Promise<void> {
   const fileName = `${docName}.pdf`;
 
   linkEl.href = pdfUrl;
-  linkEl.download = fileName;
-  linkEl.textContent = `Tap to open ${fileName}`;
+  linkEl.removeAttribute("download");
+  linkEl.textContent = `Open ${fileName}`;
 
-  // iOS Safari blocks most programmatic downloads; open the PDF directly.
-  if (isIos()) {
-    const exists = await pdfExists(pdfUrl);
-    if (exists) {
-      openPdf(pdfUrl);
-      return;
-    }
+  const exists = await pdfExists(pdfUrl);
+  if (!exists) {
     showFallback(statusEl, fallbackEl, "PDF not found. If this is wrong, use:");
     return;
   }
 
-  try {
-    const res = await fetch(pdfUrl, { method: "GET", cache: "no-store" });
-    if (!res.ok) throw new Error("missing");
-    const blob = await res.blob();
-    forceDownload(blob, fileName, statusEl, fallbackEl);
-  } catch {
-    showFallback(statusEl, fallbackEl, "Could not auto-download. Open the PDF:");
-    window.setTimeout(() => openPdf(pdfUrl), 1000);
-  }
+  // Navigate to the PDF so the browser’s built-in viewer displays it.
+  window.location.replace(pdfUrl);
 }
 
 void main();
