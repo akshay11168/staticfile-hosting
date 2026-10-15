@@ -1,0 +1,13 @@
+# QR generator
+
+> A browser tool that turns text or a link into a QR code.
+
+The code is created in the browser. Nothing is uploaded. The code stores the text you type. Scanning it does not redirect through this site.
+
+- Site: https://static-hosting.biradarakshay.com/
+- Author: Akshay Biradar
+- Author site: https://www.biradarakshay.com/
+
+## What this site does not do
+
+It does not run a QR redirect service, keep a scan history, or require an account.

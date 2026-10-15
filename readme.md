@@ -1,6 +1,8 @@
 # Static PDF Hosting (GitHub Pages)
 
-Host PDFs behind stable URLs and static QR codes. Scan a QR → the PDF opens in the browser. No login, no landing page, no backend.
+Host PDFs behind stable URLs and static QR codes. Scan a QR → the PDF opens in the browser. No login and no backend.
+
+The site root is a QR generator: type any text, and the code is drawn in the browser. Nothing is uploaded.
 
 **Production domain:** https://static-hosting.biradarakshay.com
 
@@ -43,9 +45,11 @@ qr/
     └── 2.png
 
 src/download.ts       # TypeScript source for the PDF router
-assets/download.js    # compiled browser script (commit after npm run build)
+src/qr-page.ts        # TypeScript source for the browser QR generator
+assets/download.js    # compiled PDF router (commit after npm run build)
+assets/qr.js          # bundled QR generator (commit after npm run build)
 404.html              # routes /event/<event>/<doc> → open PDF in browser
-index.html            # site root (not used by QR codes)
+index.html            # site root: type any text, get a QR code
 CNAME                 # custom domain
 .nojekyll             # serve files as plain static assets
 scripts/
@@ -126,6 +130,12 @@ qr/<event-name>/<document-name>.png
 ```
 
 QR codes are generated offline with the `qrcode` package. No third-party QR SaaS.
+
+## QR generator on the site root
+
+Open the site root and type any text or link. The page encodes it in the browser and shows a QR code. Download PNG or SVG from the page. There is no server, account, or stored history.
+
+The text is kept in the page address (`#...`) so a refresh restores it. That fragment never leaves the browser.
 
 ## Replace a PDF without changing its QR
 
@@ -210,7 +220,7 @@ The page intentionally has no document picker and almost no UI.
 
 | Command | Purpose |
 |---------|---------|
-| `npm run build` | Compile `src/download.ts` → `assets/download.js` |
+| `npm run build` | Compile the PDF router and bundle the browser QR generator |
 | `npm run generate-qr` | Generate SVG/PNG QR codes from `events/` |
 | `npm run create-samples` | Create placeholder demo PDFs |
 | `npm run prepare-assets` | samples + QR + build |

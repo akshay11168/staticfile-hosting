@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /event/
+Disallow: /events/
+Disallow: /qr/
+
+Sitemap: https://static-hosting.biradarakshay.com/sitemap.xml

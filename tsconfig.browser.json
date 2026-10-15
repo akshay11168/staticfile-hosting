@@ -9,5 +9,5 @@
     "outDir": "assets",
     "moduleDetection": "legacy"
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/download.ts"]
 }

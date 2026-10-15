@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsc -p tsconfig.browser.json",
+    "build": "tsc -p tsconfig.browser.json && esbuild src/qr-page.ts --bundle --format=iife --platform=browser --target=es2019 --outfile=assets/qr.js",
     "generate-qr": "tsx scripts/generate-qr.ts",
     "create-samples": "tsx scripts/create-sample-pdfs.ts",
     "prepare-assets": "npm run create-samples && npm run generate-qr && npm run build"
@@ -12,6 +12,7 @@
     "@types/node": "^22.13.10",
     "@types/qrcode": "^1.5.5",
     "qrcode": "^1.5.4",
+    "esbuild": "^0.28.2",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2"
   }
