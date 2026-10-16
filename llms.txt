@@ -7,6 +7,8 @@ The code is created in the browser. Nothing is uploaded. The code stores the tex
 - Site: https://static-hosting.biradarakshay.com/
 - Author: Akshay Biradar
 - Author site: https://www.biradarakshay.com/
+- LinkedIn: https://www.linkedin.com/in/biradar-akshay/
+- GitHub: https://github.com/akshay11168
 
 ## What this site does not do
 

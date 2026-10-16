@@ -3,11 +3,15 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#f4f1ea">
+  <meta name="theme-color" content="#f3f7f6">
   <title>QR generator</title>
   <meta name="description" content="Create a QR code in the browser. The code stores your text or link directly. Nothing is uploaded, and scanning it does not redirect through this site.">
   <meta name="author" content="Akshay Biradar">
   <link rel="canonical" href="https://static-hosting.biradarakshay.com/">
+  <link rel="author" href="https://www.biradarakshay.com/">
+  <link rel="alternate" type="text/plain" href="/llms.txt" title="Plain-text summary of this site">
+  <link rel="me" href="https://www.linkedin.com/in/biradar-akshay/">
+  <link rel="me" href="https://github.com/akshay11168">
   <link rel="icon" href="/favicon.svg" type="image/svg+xml">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1">
   <meta property="og:site_name" content="QR generator">
@@ -36,7 +40,12 @@
           "url": "https://static-hosting.biradarakshay.com/",
           "name": "QR generator",
           "description": "Create a QR code in the browser. The code stores your text or link directly. Nothing is uploaded, and scanning it does not redirect through this site.",
-          "inLanguage": "en"
+          "inLanguage": "en",
+          "publisher": {
+            "@type": "Person",
+            "name": "Akshay Biradar",
+            "url": "https://www.biradarakshay.com/"
+          }
         },
         {
           "@type": "WebPage",
@@ -48,6 +57,11 @@
           "isPartOf": { "@id": "https://static-hosting.biradarakshay.com/#website" },
           "about": { "@id": "https://static-hosting.biradarakshay.com/#app" },
           "mainEntity": { "@id": "https://static-hosting.biradarakshay.com/#app" },
+          "author": {
+            "@type": "Person",
+            "name": "Akshay Biradar",
+            "url": "https://www.biradarakshay.com/"
+          },
           "primaryImageOfPage": {
             "@type": "ImageObject",
             "url": "https://static-hosting.biradarakshay.com/og.svg",
@@ -86,17 +100,19 @@
     }
 
     :root {
-      --paper: #f4f1ea;
-      --paper-raised: #fbf9f4;
-      --ink: #2c3332;
-      --muted: #5c6563;
-      --line: #ddd6cc;
-      --blue: #3c6e72;
-      --blue-deep: #2a5154;
-      --yellow: #e0c27a;
+      --paper: #f3f7f6;
+      --paper-raised: #ffffff;
+      --ink: #14262c;
+      --muted: #4d6368;
+      --line: #d5e2e0;
+      --blue: #0f6e68;
+      --blue-deep: #0c5854;
+      --yellow: #e7b84a;
       --display: "Fraunces Variable", "Iowan Old Style", Palatino, Georgia, serif;
       --sans: "Segoe UI", system-ui, sans-serif;
       --mono: "Cascadia Mono", "Segoe UI Mono", ui-monospace, monospace;
+      --radius: 1rem;
+      --shadow: 0 14px 34px rgba(44, 51, 50, 0.08);
       --focus: 3px solid var(--ink);
     }
 
@@ -107,6 +123,8 @@
     body {
       margin: 0;
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
       background: var(--paper);
       color: var(--ink);
       font-family: var(--sans);
@@ -115,7 +133,8 @@
     }
 
     h1,
-    p { margin: 0; }
+    p,
+    ul { margin: 0; }
 
     h1 {
       font-family: var(--display);
@@ -138,21 +157,33 @@
       outline-offset: 3px;
     }
 
-    .stripe {
-      display: flex;
-      height: 8px;
+    .skip-link {
+      position: absolute;
+      left: 1rem;
+      top: 0.5rem;
+      z-index: 20;
+      transform: translateY(-150%);
+      background: var(--yellow);
+      color: var(--ink);
+      padding: 0.6rem 0.8rem;
+      text-decoration: none;
+      font-weight: 700;
     }
 
-    .stripe span:nth-child(1) { flex: 1; background: var(--ink); }
-    .stripe span:nth-child(2) { width: 18%; background: var(--blue); }
-    .stripe span:nth-child(3) { width: 10%; background: var(--yellow); }
+    .skip-link:focus { transform: none; }
 
     .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: color-mix(in srgb, var(--paper) 88%, transparent);
+      backdrop-filter: blur(14px);
       border-bottom: 1px solid var(--line);
     }
 
     .header-inner,
-    .tool {
+    .tool,
+    .footer-inner {
       width: min(40rem, calc(100% - 2rem));
       margin-inline: auto;
     }
@@ -170,6 +201,8 @@
     }
 
     .wordmark:hover { color: var(--ink); }
+
+    main { flex: 1; }
 
     .tool { padding: 2.5rem 0 3.5rem; }
 
@@ -218,7 +251,7 @@
       min-height: 8rem;
       padding: 0.65rem 0.7rem;
       border: 2px solid var(--ink);
-      border-radius: 0;
+      border-radius: 0.7rem;
       background: var(--paper-raised);
       color: var(--ink);
       font: 1rem/1.4 var(--sans);
@@ -264,6 +297,7 @@
 
     .sketch-offset {
       margin: 0.85rem 0 0 0.85rem;
+      border-radius: var(--radius);
       background: var(--yellow);
     }
 
@@ -271,7 +305,9 @@
       margin: 0 0.85rem 0.85rem 0;
       background: var(--paper-raised);
       border: 1px solid var(--ink);
+      border-radius: var(--radius);
       padding: 0.75rem;
+      box-shadow: var(--shadow);
     }
 
     canvas {
@@ -296,6 +332,7 @@
       min-height: 44px;
       padding: 0.65rem 1rem;
       border: 2px solid var(--blue);
+      border-radius: 999px;
       background: var(--blue);
       color: #fff;
       font: 600 1rem/1 var(--sans);
@@ -304,8 +341,9 @@
 
     button::after {
       content: "";
-      width: 0.5rem;
-      height: 0.5rem;
+      width: 0.45rem;
+      height: 0.45rem;
+      border-radius: 50%;
       background: var(--yellow);
       flex: none;
     }
@@ -345,6 +383,43 @@
       color: var(--ink);
     }
 
+    .site-footer {
+      border-top: 1px solid var(--line);
+      padding: 2rem 0 2.5rem;
+    }
+
+    .footer-inner {
+      display: grid;
+      gap: 0.75rem;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem 1rem;
+      padding: 0;
+      list-style: none;
+    }
+
+    .footer-links a,
+    .site-footer .wordmark {
+      color: var(--ink);
+      text-decoration: none;
+    }
+
+    .footer-links a {
+      font-family: var(--mono);
+      font-size: 0.82rem;
+    }
+
+    .footer-links a:hover { text-decoration: underline; }
+
+    .copyright {
+      font-family: var(--mono);
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
     @media (max-width: 899px) {
       .tool { padding: 1.75rem 0 2.25rem; }
     }
@@ -359,13 +434,13 @@
   </style>
 </head>
 <body>
-  <div class="stripe" aria-hidden="true"><span></span><span></span><span></span></div>
+  <a class="skip-link" href="#content">Skip to content</a>
   <header class="site-header">
     <div class="header-inner">
       <a class="wordmark" href="https://www.biradarakshay.com/">Akshay Biradar</a>
     </div>
   </header>
-  <main>
+  <main id="content">
     <div class="tool">
       <p class="index-row">
         <span class="index">01</span>
@@ -390,6 +465,25 @@
       </div>
     </div>
   </main>
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <p class="wordmark">Akshay Biradar</p>
+      <p>Big ideas are easy. Making them work is the job.</p>
+      <ul class="footer-links">
+        <li><a href="https://www.biradarakshay.com/">biradarakshay.com</a></li>
+        <li><a href="https://www.linkedin.com/in/biradar-akshay/" rel="me noopener noreferrer">LinkedIn</a></li>
+        <li><a href="https://github.com/akshay11168" rel="me noopener noreferrer">GitHub</a></li>
+      </ul>
+      <p class="copyright">© 2026 Akshay Biradar</p>
+    </div>
+  </footer>
+  <script>
+    window.__analytics = {
+      beacon: "",
+      umamiId: "",
+      domain: "static-hosting.biradarakshay.com"
+    };
+  </script>
   <script src="assets/qr.js" defer></script>
 </body>
 </html>

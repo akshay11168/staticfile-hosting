@@ -4,6 +4,7 @@
  */
 
 import QRCode from "qrcode";
+import { loadAnalytics, track } from "./analytics";
 
 const TEXT_OPTIONS = {
   errorCorrectionLevel: "M" as const,
@@ -24,6 +25,7 @@ const svgBtn = requireEl<HTMLButtonElement>("svg");
 let svgMarkup = "";
 let encodedText = "";
 let pending: Promise<void> = Promise.resolve();
+let announced = false;
 
 function requireEl<T extends HTMLElement>(id: string): T {
   const el = document.getElementById(id);
@@ -99,6 +101,10 @@ async function draw(value: string): Promise<void> {
     encodedText = value;
     setReady(true);
     setMessage("");
+    if (!announced) {
+      announced = true;
+      track("qr_ready");
+    }
   } catch (error) {
     if (textEl.value !== value) return;
     clearCode();
@@ -120,6 +126,7 @@ pngBtn.addEventListener("click", () => {
   void QRCode.toDataURL(value, { ...TEXT_OPTIONS, width: 1024 }).then((url) => {
     if (encodedText !== value) return;
     saveFile("qr.png", url);
+    track("qr_download", "png");
   });
 });
 
@@ -128,8 +135,10 @@ svgBtn.addEventListener("click", () => {
   const blob = new Blob([svgMarkup], { type: "image/svg+xml" });
   const url = URL.createObjectURL(blob);
   saveFile("qr.svg", url, url);
+  track("qr_download", "svg");
 });
 
 const initial = readHash();
 if (initial) textEl.value = initial;
 schedule();
+loadAnalytics();

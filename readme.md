@@ -225,6 +225,33 @@ The page intentionally has no document picker and almost no UI.
 | `npm run create-samples` | Create placeholder demo PDFs |
 | `npm run prepare-assets` | samples + QR + build |
 
+## Search
+
+The generator page has one title and description, a canonical URL, Open Graph and social metadata, structured data, `robots.txt`, `sitemap.xml`, and `llms.txt`. PDF routes under `/event/` and generated files under `/qr/` stay out of the sitemap. The PDF opener (`404.html`) is `noindex`.
+
+Submit `https://static-hosting.biradarakshay.com/sitemap.xml` in Google Search Console after the domain answers over HTTPS.
+
+## Analytics
+
+Two cookieless tools, each for a different job. Neither loads until its value is set in `index.html` (`window.__analytics`). Neither receives the text typed into the page. Local hosts are ignored.
+
+**Cloudflare Web Analytics** records visits, referrers, and Core Web Vitals.
+
+1. In the Cloudflare dashboard, open Web Analytics and add `static-hosting.biradarakshay.com`.
+2. Copy the site token into `window.__analytics.beacon`.
+
+**Umami** records only these events:
+
+| Event | When it is sent |
+|---|---|
+| `qr_ready` | The first code drawn on that page load. The text is not included. |
+| `qr_download` | A PNG or SVG download. `kind` is `png` or `svg`. |
+
+1. Create a site in Umami for `static-hosting.biradarakshay.com`.
+2. Copy the website id into `window.__analytics.umamiId`.
+
+These tools do not set cookies, so the page does not add a consent banner.
+
 ## Design principles
 
 - Published site is static only: HTML / CSS / compiled JS

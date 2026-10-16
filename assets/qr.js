@@ -2110,6 +2110,51 @@
 
   // src/qr-page.ts
   var import_qrcode = __toESM(require_browser(), 1);
+
+  // src/analytics.ts
+  var allowedEvents = /* @__PURE__ */ new Set(["qr_ready", "qr_download"]);
+  var allowedKinds = /* @__PURE__ */ new Set(["png", "svg"]);
+  function hostAllowsAnalytics(hostname) {
+    return hostname !== "localhost" && hostname !== "127.0.0.1" && hostname !== "[::1]" && !hostname.endsWith(".local");
+  }
+  function readConfig() {
+    var _a, _b, _c, _d, _e;
+    const raw = window.__analytics;
+    return {
+      beacon: (_b = (_a = raw == null ? void 0 : raw.beacon) == null ? void 0 : _a.trim()) != null ? _b : "",
+      umamiId: (_d = (_c = raw == null ? void 0 : raw.umamiId) == null ? void 0 : _c.trim()) != null ? _d : "",
+      domain: ((_e = raw == null ? void 0 : raw.domain) == null ? void 0 : _e.trim()) || window.location.hostname
+    };
+  }
+  function loadAnalytics() {
+    if (!hostAllowsAnalytics(window.location.hostname)) return;
+    const { beacon, umamiId, domain } = readConfig();
+    if (beacon) {
+      const script = document.createElement("script");
+      script.defer = true;
+      script.src = "https://static.cloudflareinsights.com/beacon.min.js";
+      script.setAttribute("data-cf-beacon", JSON.stringify({ token: beacon }));
+      document.body.appendChild(script);
+    }
+    if (umamiId) {
+      const script = document.createElement("script");
+      script.defer = true;
+      script.src = "https://cloud.umami.is/script.js";
+      script.dataset.websiteId = umamiId;
+      script.dataset.domains = domain;
+      document.body.appendChild(script);
+    }
+  }
+  function track(event, kind) {
+    if (!allowedEvents.has(event) || !hostAllowsAnalytics(window.location.hostname)) return;
+    const umami = window.umami;
+    if (!umami || typeof umami.track !== "function") return;
+    const props = { path: window.location.pathname };
+    if (kind && allowedKinds.has(kind)) props.kind = kind;
+    umami.track(event, props);
+  }
+
+  // src/qr-page.ts
   var TEXT_OPTIONS = {
     errorCorrectionLevel: "M",
     margin: 4,
@@ -2127,6 +2172,7 @@
   var svgMarkup = "";
   var encodedText = "";
   var pending = Promise.resolve();
+  var announced = false;
   function requireEl(id) {
     const el = document.getElementById(id);
     if (!el) throw new Error(`Missing #${id}`);
@@ -2191,6 +2237,10 @@
       encodedText = value;
       setReady(true);
       setMessage("");
+      if (!announced) {
+        announced = true;
+        track("qr_ready");
+      }
     } catch (error) {
       if (textEl.value !== value) return;
       clearCode();
@@ -2209,6 +2259,7 @@
     void import_qrcode.default.toDataURL(value, { ...TEXT_OPTIONS, width: 1024 }).then((url) => {
       if (encodedText !== value) return;
       saveFile("qr.png", url);
+      track("qr_download", "png");
     });
   });
   svgBtn.addEventListener("click", () => {
@@ -2216,8 +2267,10 @@
     const blob = new Blob([svgMarkup], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
     saveFile("qr.svg", url, url);
+    track("qr_download", "svg");
   });
   var initial = readHash();
   if (initial) textEl.value = initial;
   schedule();
+  loadAnalytics();
 })();
